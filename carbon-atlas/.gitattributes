@@ -1,0 +1,27 @@
+# Line endings.
+#
+# Every text file in this repository uses LF today: the Python, the Markdown, the
+# JavaScript, the CSS, the HTML, the JSON, the PowerShell and this file. The first commit
+# therefore records LF, and the line below holds it there.
+#
+# Without this file a contributor on Windows with the Git default `core.autocrlf=true`
+# checks out CRLF and commits CRLF back. Every line of every file they touch then shows as
+# a change, and the repair rewrites every file and breaks every blame and every diff.
+# This is the only cheap moment to set it: after the first commit, a change here rewrites
+# the working tree of everybody.
+* text=auto eol=lf
+
+# `ops/register-tasks.ps1` is LF today, and both PowerShell 5.1 and PowerShell 7 run an LF
+# script, so the rule above is correct for it. A team that wants the Windows convention
+# for PowerShell adds `*.ps1 text eol=crlf` here instead. Decide once.
+
+# Binary. Never convert an end of line in these, and never attempt a text diff.
+*.png    binary
+*.webp   binary
+*.jpg    binary
+*.jpeg   binary
+*.ico    binary
+*.gz     binary
+*.zip    binary
+*.duckdb binary
+*.pyc    binary

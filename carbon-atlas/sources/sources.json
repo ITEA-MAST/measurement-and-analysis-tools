@@ -1,0 +1,497 @@
+{
+  "schema_version": "1.1",
+  "compiled": "2026-09-16",
+  "pruned": {
+    "on": "2026-09-18",
+    "rule": "The register holds a source only when it can be collected. A source that did not answer the probe, and a source that was taken from documentation and never called, were removed. The register keeps a source that needs a key only while the key request is open and named in SOURCES.md section 8. ENTSO-E is the one such source.",
+    "was": 27,
+    "now": 12,
+    "now_note": "`now` is the entry count on the prune date. The register holds 13 entries since the revision below. 11 distinct operators stand behind those 13 entries. Two operators give two entries each: Fraunhofer ISE gives /co2eq and /v2/public_power, and Elia gives the two value columns of one dataset.",
+    "removed": {
+      "did not answer the probe": ["ree-apidatos", "terna"],
+      "needs a key": ["ned-nl", "fingrid", "ember"],
+      "documented only": ["eea-ghg-intensity", "econ-powerci", "watttime", "ionos-sustainability-2025", "cloud-carbon-footprint", "boavizta", "factors-ipcc-ar5-annex3", "factors-unece-2022", "factors-iea-upstream-2024", "factors-unnewehr-2022"]
+    },
+    "record": "SOURCES.md section 0.1 holds the probe result and the research of each removed source."
+  },
+  "revised": [
+    {
+      "on": "2026-09-18",
+      "was": "elia-opendata, one entry, category generation-mix",
+      "now": ["elia-co2-production", "elia-co2-consumption"],
+      "why": "A probe of the dataset that the entry named, ods192, read the title 'Production-Based CO2 Intensity and Consumption-Based CO2 Intensity Belgium'. The entry gives carbon intensity and not a generation mix. The dataset holds two value columns for one hour, and `basis` is not in the key of the record table, so one source id cannot carry both. The register now holds one entry for each column.",
+      "record": "SOURCES.md section 1.6."
+    }
+  ],
+  "note": "Authoritative source register for carbon-atlas. Collectors and the HTML portal read this file. Never hard-code a source URL anywhere else. Every stored data record must carry a source_id from this file.",
+  "status_values": {
+    "verified-live": "The endpoint was called on verified_on and the quoted response was returned.",
+    "key-required": "The endpoint answered, but refused without credentials."
+  },
+  "sources": [
+    {
+      "id": "energy-charts-co2eq",
+      "name": "energy-charts /co2eq",
+      "operator": "Fraunhofer ISE",
+      "category": "carbon-intensity",
+      "site_url": "https://www.energy-charts.info/",
+      "api_base": "https://api.energy-charts.info",
+      "endpoints": [
+        { "path": "/co2eq", "params": ["country", "start", "end"], "returns": ["co2eq", "co2eq_forecast", "deprecated"] }
+      ],
+      "docs_url": "https://api.energy-charts.info/llms-full.txt",
+      "auth": "none",
+      "cost": "free",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://energy-charts.info/publishing-notes.html",
+      "licence_verified_on": "2026-09-18",
+      "licence_verification": "GET https://api.energy-charts.info/openapi.json -> HTTP 200. info.description, section 'Data License': 'Unless stated otherwise, the data provided by the Energy-Charts API is licensed under the CC BY 4.0 license. Proper attribution to Energy-Charts.info as the source is required.' info.license points to publishing-notes.html. The llms-full.txt documentation states no licence.",
+      "attribution": "energy-charts.info",
+      "rate_limit": { "requests_per_minute": 2, "burst": 4, "scope": "per IP per endpoint", "on_429": "honour Retry-After header (seconds)", "note": "Adjusted down dynamically under server load. Treat as an upper bound." },
+      "coverage": {
+        "countries_verified": ["at", "ba", "be", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fi", "fr", "ge", "gr", "hr", "hu", "it", "lt", "lu", "lv", "md", "me", "nl", "no", "pl", "pt", "ro", "rs", "se", "si", "sk", "uk", "xk"],
+        "aggregates_verified": ["eu"],
+        "count_verified": 34,
+        "count_verified_note": "34 countries plus the eu aggregate. All 37 country codes in the enum were tested on 2026-09-16. de, fr and es carry no mean in this file because the previous investigation already holds 12 months for them.",
+        "unavailable": { "ie": "HTTP 404", "ua": "HTTP 404", "mk": "HTTP 200 but all actual values null; forecast only" },
+        "resolution_minutes_observed": { "at": 15, "cz": 15, "de": 15, "dk": 15, "ee": 15, "es": 15, "fi": 15, "fr": 15, "hr": 15, "hu": 15, "it": 15, "lt": 15, "lu": 15, "nl": 15, "no": 15, "pl": 15, "ro": 15, "se": 15, "uk": 30, "ba": 60, "be": 60, "bg": 60, "ch": 60, "cy": 60, "ge": 60, "gr": 60, "lv": 60, "md": 60, "me": 60, "pt": 60, "rs": 60, "si": 60, "sk": 60, "xk": 60, "eu": 60 },
+        "resolution_minutes_counts": { "15": 18, "30": 1, "60": 15, "counted_on": "2026-09-22", "counted_note": "Counted from resolution_minutes_observed above. The three numbers cover the 34 countries. uk is the one country at 30 minutes. The eu aggregate is the 35th entry of that map, it sits at 60 minutes, and it is not a country." },
+        "resolution_uniform": false,
+        "resolution_rule": "ALWAYS derive resolution from the returned unix_seconds array. The observed values above were measured on the 2026-09-10 window and se differed on a later window.",
+        "mean_gco2eq_per_kwh_2026_09_10": { "ch": 20.6, "se": 22.6, "lv": 27.2, "no": 29.6, "si": 36.8, "fi": 50.5, "lt": 66.7, "sk": 90.1, "at": 96.2, "uk": 122.5, "ge": 126.4, "ee": 132.8, "pt": 147.5, "dk": 163.0, "hu": 180.8, "hr": 254.7, "eu": 278.2, "md": 296.8, "lu": 303.4, "it": 303.9, "be": 312.9, "gr": 321.3, "bg": 345.6, "ro": 376.9, "cz": 508.8, "nl": 521.8, "pl": 676.5, "cy": 720.6, "rs": 921.2, "me": 1013.1, "ba": 1056.9, "xk": 1126.0 },
+        "forecast": {
+          "available": true,
+          "horizon_hours": 17,
+          "note": "co2eq_forecast is all null on a historical window. Fetch forward windows separately. Verified 2026-09-16 for de, se and pl: 69 non-null forecast points each, de range 240-598 g.",
+          "measured_2026_09_17": {
+            "method": "One atlas snap over all 34 countries. The store records run_at 2026-09-17T12:44:30Z for that snap, with 28 countries. lt carries a curve from a second run at 2026-09-17T13:05:13Z, which makes 29. An earlier note said 15:44 UTC. That was the local EEST clock of the author, and not UTC.",
+            "countries_with_a_curve": 29,
+            "countries_with_no_curve": ["cy", "gb", "ge", "md", "xk"],
+            "horizon_hours_observed": "8.0 to 57.0, and NOT 17 for every country. at reaches 57 h with 229 points. Most 15-minute countries reach 33 h with 133 points. Several 60-minute countries reach 8.2 h with 9 points.",
+            "correction": "horizon_hours 17 was measured on de, se and pl only. The horizon depends on the capture time and on the publisher's daily cut-off, and only then on the country. The store holds de at run_at 2026-09-17T10:20:51Z with 46 points that reach 11.4 h, and de at 2026-09-17T12:44:30Z with 37 points that reach 9.0 h. Both curves stop at 21:45 UTC of the same day. Derive the horizon from the returned array, and never from this field.",
+            "negative_values": "lt carries 8 negative forecast values of 98, from -0.9 to -14.6 gCO2eq/kWh, beside a curve that reaches 81.7 g. The lt ACTUAL series holds no negative value. The collector drops the point and keeps the rest."
+          }
+        },
+        "history_collected_2026_09_17": {
+          "method": "Full backfill of every country from 2015-06-01 to 2026-09-17, through the atlas collector. Counted on 2026-09-22, the `record_current` view holds 5,105,530 actual records from this source, and the `record` table holds 5,105,674. The difference of 144 rows is the superseded revisions. Neither number counts the captured forecast rows.",
+          "warning": "A country in countries_verified returns a value for TODAY. It does not follow that the country has a history. Four countries do not.",
+          "complete": ["at", "ba", "be", "bg", "ch", "cz", "de", "dk", "ee", "es", "fi", "fr", "gr", "hr", "hu", "it", "lt", "lu", "lv", "nl", "no", "pl", "pt", "ro", "rs", "se", "si", "sk"],
+          "thin": {
+            "measured_on": "2026-09-22",
+            "note": "A thin country runs from its own first day to the newest day, and it misses days inside that span. It is not complete, and it is not partial.",
+            "me": "3,527 of the 4,120 days of its span, which is 85.6 %.",
+            "uk": "3,893 of the 4,128 days of its span, which is 94.3 %. uk is the energy-charts code, and the zone is GB."
+          },
+          "partial": {
+            "xk": "2021-08-22 onward, 44,387 records. 16 days still fail.",
+            "ge": "2021-12-25 to 2025-04-20, 28,252 records. 548 days still fail.",
+            "cy": "2015-07-25 to 2017-06-10 only, 27,198 records. 3,516 days still fail. Not usable as a time series.",
+            "md": "NO records at all. 2,981 days fail and 1,146 days return an empty list."
+          },
+          "first_day_observed": { "de": "2015-05-31", "me": "2015-06-08", "rs": "2016-12-22", "ba": "2017-02-28", "hr": "2018-12-31", "xk": "2021-08-22" },
+          "server_error_note": "The API answers HTTP 500 for some periods and HTTP 200 for other periods of the same country. It is not a rate limit and not a size limit: dk for 2024 returns 8,784 points in 2 s, and dk for 2015 to 2026 fails after 17 s. The collector splits a window on a 5xx status and keeps the good halves."
+        }
+      },
+      "methodology": {
+        "basis": "production-based (inferred)",
+        "scope": "lifecycle (inferred from the co2eq name)",
+        "documented": false,
+        "factor_table_published": false
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /co2eq?country=de&start=2026-09-10&end=2026-09-11 -> HTTP 200, quarter-hourly. Twelve further countries probed, all HTTP 200 with non-null values.",
+      "risks": [
+        "Undocumented: absent from GET /v2 (19 endpoints) and from /openapi.json (37 paths). Re-verified 2026-09-16.",
+        "No v2 form: GET /v2/co2eq returns HTTP 404 while GET /co2eq returns HTTP 200 with deprecated:false. Every other endpoint has both forms.",
+        "No published emission-factor table, no scope statement, no version.",
+        "Resolution differs by country. Resample before any cross-country statistic.",
+        "Almost certainly does not flow-trace imports, so a net-importing country is overstated and a net exporter is flattered.",
+        "MEASURED 2026-09-17: a country that returns a value for today can hold no history. cy, ge, md and xk are in countries_verified, and only xk gives a usable series. See coverage.history_collected_2026_09_17.",
+        "MEASURED 2026-09-17: the API answers HTTP 500 for some periods of some countries. A collector that makes one request for the whole history loses the whole country. Split the window on a 5xx status.",
+        "MEASURED 2026-09-17, found by the portal: ge sits at a floor of 3.0 to 3.9 gCO2eq/kWh for whole months. 8 complete months from 2022-05 to 2024-07, of 665 to 744 records each, hold a mean below 8 g, and the minimum of every one of them is exactly 3.0. No lifecycle factor table gives 3 g to a national grid, because hydro alone is near 24 g. Treat the ge series as a model artefact until a second source scores it. The next lowest complete month across the store is ch at 10.9 g, which is plausible."
+      ],
+      "used_for": ["primary sub-hourly carbon intensity", "native forecast", "seasonality"]
+    },
+    {
+      "id": "energy-charts-public-power",
+      "name": "energy-charts /v2/public_power",
+      "operator": "Fraunhofer ISE",
+      "category": "generation-mix",
+      "api_base": "https://api.energy-charts.info",
+      "endpoints": [
+        { "path": "/v2/public_power", "params": ["country", "start", "end", "subtype"], "returns": "one series per production type, in MW, plus renewable_share_of_load" },
+        { "path": "/v2/installed_power", "returns": "installed capacity per production type" },
+        { "path": "/v2/total_power", "returns": "total net production including industrial self supply" },
+        { "path": "/v2/cbet", "returns": "cross-border scheduled commercial exchange" },
+        { "path": "/v2/cbpf", "returns": "cross-border physical flows" },
+        { "path": "/v2/solar_share_daily_avg", "returns": "daily average solar share of load" },
+        { "path": "/v2/wind_onshore_share_daily_avg", "returns": "daily average onshore wind share of load" },
+        { "path": "/v2/wind_offshore_share_daily_avg", "returns": "daily average offshore wind share of load" },
+        { "path": "/v2/ren_share_daily_avg", "returns": "daily average renewable share of load" }
+      ],
+      "docs_url": "https://api.energy-charts.info/v2",
+      "auth": "none",
+      "cost": "free",
+      "licence": "CC BY 4.0",
+      "rate_limit": { "requests_per_minute": 2, "burst": 4 },
+      "coverage": {
+        "countries": ["at", "ba", "be", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fi", "fr", "ge", "gr", "hr", "hu", "ie", "it", "lt", "lu", "lv", "md", "me", "mk", "nl", "no", "pl", "pt", "ro", "rs", "se", "si", "sk", "ua", "uk", "xk"],
+        "aggregates": ["eu", "all"],
+        "count": 39
+      },
+      "methodology": { "documented": true, "self_describing": true, "note": "v2 envelope declares unit, resolution, timezone, available_from and available_until inline. Timestamps mark the interval START, except installed_power." },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /v2 returned the catalogue with the full country enum quoted above.",
+      "risks": ["Same 2 requests per minute limit as /co2eq. A 39-country year-long backfill is a multi-hour job and must checkpoint."],
+      "used_for": ["generation mix by production type", "seasonality of solar and wind share", "own-computed carbon intensity"]
+    },
+    {
+      "id": "neso-carbon-intensity",
+      "name": "NESO Carbon Intensity API",
+      "operator": "National Energy System Operator (GB)",
+      "category": "carbon-intensity",
+      "site_url": "https://carbonintensity.org.uk/",
+      "api_base": "https://api.carbonintensity.org.uk",
+      "endpoints": [
+        { "path": "/intensity", "returns": ["forecast", "actual", "index"], "note": "Store BOTH forecast and actual. Never collapse with an or expression." },
+        { "path": "/generation", "returns": "fuel mix as percentages" },
+        { "path": "/regional", "returns": "intensity and mix for 14 GB distribution regions" }
+      ],
+      "docs_url": "https://carbon-intensity.github.io/api-definitions/",
+      "methodology_url": "https://github.com/carbon-intensity/methodology",
+      "auth": "none",
+      "cost": "free",
+      "unit": "gCO2/kWh",
+      "licence_status": "not recorded",
+      "licence_note": "NOT RECORDED as of 2026-09-22. No licence probe was made for this source, and SOURCES.md section 1.2 records no licence. The keys licence, licence_url, licence_verified_on and attribution stay absent on purpose. Do not fill them from memory. Read the publisher terms, quote them here, then fill the four keys. The portal republishes these rows, so do this before any external publication.",
+      "rate_limit": { "requests_per_minute": 30, "scope": "per IP", "note": "The publisher states no limit. 30 each minute is the choice of this program, measured on 2026-09-18 as safe for a month-long window." },
+      "coverage": { "zones": ["GB"], "sub_zones": 14, "resolution_minutes": 30, "forecast_hours": 48 },
+      "methodology": {
+        "basis": "consumption-inclusive (interconnector imports included)",
+        "scope": "direct/operational, NOT lifecycle",
+        "documented": true,
+        "includes": ["interconnector imports", "transmission and distribution losses", "embedded wind and solar"],
+        "zero_rated": ["nuclear", "wind", "solar", "hydro"],
+        "published_factors_gco2_per_kwh": { "coal": 937, "french_interconnector": 53, "dutch_interconnector": 474, "biomass": 120 }
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /intensity, /generation and /regional all HTTP 200 without a key.",
+      "risks": [
+        "Direct factors, not lifecycle. Understated by roughly 20 to 40 g against a lifecycle series.",
+        "Biomass carries an uncertainty of 120 +/- 120 gCO2/kWh and GB burns a lot of it.",
+        "Not comparable to energy-charts without an explicit correction."
+      ],
+      "used_for": ["GB ground truth", "sub-national GB zones", "direct vs lifecycle discrepancy study"]
+    },
+    {
+      "id": "electricitymaps",
+      "name": "Electricity Maps",
+      "operator": "Electricity Maps ApS",
+      "category": "carbon-intensity",
+      "site_url": "https://www.electricitymaps.com/",
+      "api_base": "https://api.electricitymap.org/v3",
+      "endpoints": [
+        { "path": "/zones", "auth": "none", "status": "verified-live" },
+        { "path": "/carbon-intensity/latest", "auth": "token", "status": "key-required" },
+        { "path": "/power-breakdown/latest", "auth": "token" }
+      ],
+      "data_portal_url": "https://www.electricitymaps.com/data-portal",
+      "methodology_url": "https://www.electricitymaps.com/data/methodology",
+      "contrib_repo": "https://github.com/electricitymaps/electricitymaps-contrib",
+      "auth": "free-tier token, commercial above",
+      "cost": "free tier limited; commercial about EUR 4500 per year",
+      "coverage": {
+        "european_zone_keys": 71,
+        "tier_a": 61,
+        "sub_national_zones": ["DK-DK1", "DK-DK2", "ES-CE", "ES-CN-FV", "ES-CN-GC", "ES-CN-HI", "ES-CN-IG", "ES-CN-LP", "ES-CN-LZ", "ES-CN-TE", "ES-IB-FO", "ES-IB-IZ", "ES-IB-MA", "ES-IB-ME", "ES-ML", "FR-COR", "GB-NIR", "IT-CNO", "IT-CSO", "IT-NO", "IT-SAR", "IT-SIC", "IT-SO", "NO-NO1", "NO-NO2", "NO-NO3", "NO-NO4", "NO-NO5", "PT-MA", "SE-SE1", "SE-SE2", "SE-SE3", "SE-SE4"],
+        "granularity": "5 minutes to yearly",
+        "history": "about 10 years"
+      },
+      "methodology": { "basis": "consumption-based, flow-traced (Tranberg et al. 2019, peer reviewed)", "scope": "lifecycle, IPCC AR5 factors globally, EU-ETS and ENTSO-E derived factors in the EU", "documented": true, "uniform_across_zones": true },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /v3/zones -> HTTP 200 without a key, 71 European zone keys. GET /v3/carbon-intensity/latest?zone=DE -> HTTP 401 Invalid auth-token.",
+      "risks": ["Web pages return HTTP 403 to automated fetch. The portal CSV download is a manual step.", "Free tier restricts zones and history."],
+      "used_for": ["reference frame for cross-source comparison", "the region catalogue", "consumption-based basis"]
+    },
+    {
+      "id": "entsoe",
+      "name": "ENTSO-E Transparency Platform",
+      "operator": "ENTSO-E",
+      "category": "generation-mix",
+      "site_url": "https://transparency.entsoe.eu/",
+      "api_base": "https://web-api.tp.entsoe.eu/api",
+      "endpoints": [
+        { "documentType": "A75", "processType": "A16", "returns": "actual generation per production type" },
+        { "documentType": "A65", "returns": "system load" },
+        { "documentType": "A11", "returns": "physical cross-border flows" }
+      ],
+      "docs_url": "https://documenter.getpostman.com/view/7009892/2s93JtP3F6",
+      "auth": "free security token; request by email to transparency@entsoe.eu with subject 'RESTful API access'",
+      "lead_time_days": 3,
+      "cost": "free",
+      "coverage": { "zones": "every European bidding zone and control area", "format": "IEC 62325 XML market documents" },
+      "status": "key-required",
+      "verified_on": "2026-09-16",
+      "verification": "GET web-api.tp.entsoe.eu/api?documentType=A75... -> HTTP 401 with an IEC 62325 Acknowledgement_MarketDocument. Endpoint alive, request shape correct, token missing.",
+      "risks": ["3 working day lead time for the token. On the critical path.", "XML market documents need a parser. Codes are not self-describing."],
+      "used_for": ["own-computed carbon intensity", "the method-versus-physics decomposition", "bidding-zone granularity"],
+      "priority": "highest"
+    },
+    {
+      "id": "energinet-eds",
+      "name": "Energinet Energi Data Service",
+      "operator": "Energinet (DK TSO)",
+      "category": "carbon-intensity",
+      "site_url": "https://www.energidataservice.dk/",
+      "api_base": "https://api.energidataservice.dk/dataset",
+      "endpoints": [
+        { "path": "/CO2Emis", "returns": "5-minute CO2 emission per price area", "status": "verified-live" },
+        { "path": "/GenerationProdTypeExchange", "returns": "hourly generation, exchange and GrossCon per price area. GrossCon is the roll-up weight.", "status": "verified-live" },
+        { "path": "/CO2EmisProg", "returns": "the forecast of the 5-minute emission. Not collected yet.", "status": "verified-live" }
+      ],
+      "auth": "none",
+      "cost": "free",
+      "unit": "gCO2/kWh",
+      "licence_status": "not recorded",
+      "licence_note": "NOT RECORDED as of 2026-09-22. No licence probe was made for this source. SOURCES.md section 1.4 says only 'Free, open, no authentication', which is an access statement and not a licence. The keys licence, licence_url, licence_verified_on and attribution stay absent on purpose. Do not fill them from memory. Read the publisher terms, quote them here, then fill the four keys. The portal republishes these rows, so do this before any external publication.",
+      "rate_limit": { "requests_per_minute": 12, "scope": "per IP", "note": "MEASURED 2026-09-18: HTTP 429 with 'Try again in 277 seconds' after about 6 fast requests. The publisher states no number. 12 each minute is the choice of this program." },
+      "methodology": {
+        "basis": "consumption-based",
+        "scope": "not stated",
+        "publisher_wording": "The dataset is an updated near up-to-date history for the CO2 emission from electricity consumed in Denmark measured in g/kWh.",
+        "detail": "Emissions of each power plant above 10 MW, with every plant below 10 MW counted as one plant. Production, consumption and exchange per hour. The 125 percent method for co-produced heat.",
+        "read_on": "2026-09-18"
+      },
+      "coverage": {
+        "zones": ["DK1", "DK2"],
+        "resolution_minutes": 5,
+        "measured_span": { "CO2Emis": "2016-12-31T23:00Z to now", "GenerationProdTypeExchange": "2015-01-01 to now", "measured_on": "2026-09-18" },
+        "rollup": "The country value is the mean of DK1 and DK2, weighted by the gross consumption of each area in that hour."
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /dataset/CO2Emis?limit=3&sort=Minutes5UTC%20DESC -> HTTP 200, records for DK1 with Minutes5UTC timestamps. Re-probed 2026-09-18: one year is 210,792 rows and 24 MB in one request.",
+      "risks": [
+        "The dataset DeclarationEmissionHour returned HTTP 404 'dataset not found'. It was renamed. Find the current name in the catalogue.",
+        "MEASURED 2026-09-18: the publisher writes 'Errors will occur, and will generally not be corrected.' A wrong value stays wrong in this series.",
+        "MEASURED 2026-09-18: DK1 and DK2 are not one grid. They held 57 and 24 gCO2/kWh at one instant. A country value needs the load weight, and a plain mean of the two areas is a different number.",
+        "The basis is consumption and not production, so this series counts the emissions of an import and energy-charts does not.",
+        "ElectricityBalanceNonv also holds a load column. The publisher discontinued it on 2026-01-06 and will delete it. Use GenerationProdTypeExchange."
+      ],
+      "used_for": ["DK ground truth", "finest resolution in the register", "sampling-loss study"]
+    },
+    {
+      "id": "rte-eco2mix-odre",
+      "name": "RTE eCO2mix via ODRE",
+      "operator": "RTE (FR TSO) / Open Data Reseaux Energies",
+      "category": "carbon-intensity",
+      "api_base": "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets",
+      "endpoints": [
+        { "path": "/eco2mix-national-tr/exports/json", "returns": "real time, 15 minutes", "status": "verified-live" },
+        { "path": "/eco2mix-national-cons-def/exports/json", "returns": "consolidated and definitive history", "status": "verified-live" }
+      ],
+      "auth": "none",
+      "cost": "free",
+      "unit": "gCO2/kWh",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "licence_url": "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf",
+      "licence_verified_on": "2026-09-18",
+      "licence_verification": "GET /catalog/datasets/eco2mix-national-tr -> HTTP 200. metas.default.license is 'Licence Ouverte v2.0 (Etalab)', with the URL above.",
+      "attribution": "RTE / ODRE",
+      "rate_limit": { "requests_per_minute": 20, "scope": "per IP", "note": "The platform states a daily quota and no rate. 20 each minute is the choice of this program." },
+      "methodology": {
+        "basis": "production-based",
+        "scope": "not stated",
+        "field_label": "Taux de CO2 (g/kWh)",
+        "publisher_wording": "Estimation des emissions de carbone generees par la production d'electricite en France.",
+        "read_on": "2026-09-18"
+      },
+      "coverage": {
+        "zones": ["FR"],
+        "resolution_minutes": 15,
+        "co2_step_minutes": { "eco2mix-national-cons-def": 30, "eco2mix-national-tr": 15 },
+        "measured_span": { "eco2mix-national-cons-def": "2011-12-31T23:00Z to 2026-06-30T21:30Z", "eco2mix-national-tr": "2026-06-30T22:00Z to now", "measured_on": "2026-09-18" },
+        "fields": ["consumption", "generation per source", "CO2 rate", "cross-border exchange"]
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET /eco2mix-national-tr/records?limit=2 -> HTTP 200, total_count 7584, 15-minute records. Re-probed 2026-09-18: one year of the definitive dataset is 35,136 rows and 2.1 MB in one export request.",
+      "risks": [
+        "The real-time dataset is a rolling window. Use the consolidated dataset for history.",
+        "MEASURED 2026-09-18: the CO2 column is filled every 30 minutes in the definitive dataset, and every 15 minutes in the real-time one. The row grid is 15 minutes in both.",
+        "The publisher states no scope. The number is production-based, and it is not stated as lifecycle or as direct combustion. It is not comparable with a lifecycle series without a correction."
+      ],
+      "used_for": ["FR ground truth", "check on the series the previous conclusion rested on"]
+    },
+    {
+      "id": "elia-co2-production",
+      "name": "Elia Open Data ods192, production-based",
+      "operator": "Elia (BE TSO)",
+      "category": "carbon-intensity",
+      "site_url": "https://opendata.elia.be/",
+      "api_base": "https://opendata.elia.be/api/explore/v2.1/catalog/datasets",
+      "endpoints": [
+        { "path": "/ods192/exports/json", "params": ["where", "select", "order_by"], "returns": ["datetime", "production", "consumption"], "status": "verified-live" },
+        { "path": "/ods191/records", "returns": "the near real-time twin. MEASURED 2026-09-18: 0 records and no fields. Do not use it.", "status": "empty" }
+      ],
+      "auth": "none",
+      "cost": "free",
+      "unit": "gCO2eq/kWh",
+      "licence": "Elia Open Data Licence",
+      "licence_url": "https://opendata.elia.be/pages/licence",
+      "licence_verified_on": "2026-09-18",
+      "licence_verification": "GET /catalog/datasets/ods192 -> HTTP 200. metas.default.license is 'Elia Open Data Licence' and metas.default.license_url is /pages/licence. The licence page renders from JavaScript, so the terms were not read character by character. See the risk below.",
+      "attribution": "Elia Open Data",
+      "rate_limit": { "requests_per_minute": 6, "scope": "per IP", "note": "The publisher states no number. The portal carries a banner that says it goes unavailable under too many simultaneous requests, so this program asks for 6 each minute. The two Elia source ids share one host, so the host sees 12 each minute." },
+      "methodology": {
+        "basis": "production-based",
+        "scope": "not stated (CO2 equivalents)",
+        "publisher_wording": "The production-based CO2 intensity refers to the amount of carbon dioxide equivalents emitted per unit of generated electricity and is expressed in gCO2eq/kWh. Cross-border flows are not taken into account in the calculation.",
+        "read_on": "2026-09-18",
+        "factor_table_published": false
+      },
+      "coverage": {
+        "zones": ["BE"],
+        "resolution_minutes": 60,
+        "measured_span": { "ods192": "2024-09-30T22:00Z to 2026-09-17T17:00Z", "measured_on": "2026-09-18" },
+        "measured_rows": 15279,
+        "measured_hours_in_span": 17204,
+        "refresh": "daily, to the day before the fetch"
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-18",
+      "verification": "GET /ods192/exports/json?select=datetime,production,consumption -> HTTP 200, 15,279 rows and 1.3 MB in one request. The field annotations give the unit gCO2eq/kWh for both value columns.",
+      "risks": [
+        "MEASURED 2026-09-18: 284 rows carry production 0.0. The blocks repeat at 18:00 to 21:00 UTC on days that follow each other, which is a fixed local evening window. energy-charts gives a mean of 218.5 gCO2eq/kWh for those same hours and never below 82.4. The smallest value that Elia gives above zero is 17.4. A zero is an hour that the publisher did not compute, and the collector drops it.",
+        "MEASURED 2026-09-18: the series holds 15,279 of the 17,204 hours of its span. The largest hole runs 70 days, from 2025-12-10T18:00Z to 2026-02-18T23:00Z.",
+        "MEASURED 2026-09-18: the history starts on 2024-09-30. That is 2 years against 11 years of energy-charts. Compare the two on the period that both hold.",
+        "The publisher states no scope. The unit is gCO2eq/kWh, so the number counts more than CO2. It does not say lifecycle, and it does not say direct combustion.",
+        "The licence page renders from JavaScript, so the terms are not extracted. The catalogue metadata gives the licence name and the URL. Read the page in a browser before any external publication."
+      ],
+      "sibling_source_id": "elia-co2-consumption",
+      "note": "ods192 holds two value columns for one hour. `basis` is not in the key of the record table, so each column needs its own source id. The two entries name one dataset, and each one makes its own request. `atlas/collectors/elia_opendata.py` holds the reason.",
+      "used_for": ["BE ground truth", "the basis gap, measured with the scope and the factor table held constant"]
+    },
+    {
+      "id": "elia-co2-consumption",
+      "name": "Elia Open Data ods192, consumption-based",
+      "operator": "Elia (BE TSO)",
+      "category": "carbon-intensity",
+      "site_url": "https://opendata.elia.be/",
+      "api_base": "https://opendata.elia.be/api/explore/v2.1/catalog/datasets",
+      "endpoints": [
+        { "path": "/ods192/exports/json", "params": ["where", "select", "order_by"], "returns": ["datetime", "production", "consumption"], "status": "verified-live" }
+      ],
+      "auth": "none",
+      "cost": "free",
+      "unit": "gCO2eq/kWh",
+      "licence": "Elia Open Data Licence",
+      "licence_url": "https://opendata.elia.be/pages/licence",
+      "licence_verified_on": "2026-09-18",
+      "licence_verification": "GET /catalog/datasets/ods192 -> HTTP 200. metas.default.license is 'Elia Open Data Licence' and metas.default.license_url is /pages/licence. The licence page renders from JavaScript, so the terms were not read character by character. See the risk below.",
+      "attribution": "Elia Open Data",
+      "rate_limit": { "requests_per_minute": 6, "scope": "per IP", "note": "The publisher states no number. The portal carries a banner that says it goes unavailable under too many simultaneous requests, so this program asks for 6 each minute. The two Elia source ids share one host, so the host sees 12 each minute." },
+      "methodology": {
+        "basis": "consumption-based",
+        "scope": "not stated (CO2 equivalents)",
+        "publisher_wording": "The consumption-based CO2 intensity refers to the amount of carbon dioxide equivalents emitted per unit of consumed electricity and is expressed in gCO2eq/kWh. Cross-border flows are taken into account in the calculation.",
+        "read_on": "2026-09-18",
+        "factor_table_published": false
+      },
+      "coverage": {
+        "zones": ["BE"],
+        "resolution_minutes": 60,
+        "measured_span": { "ods192": "2024-09-30T22:00Z to 2026-09-17T17:00Z", "measured_on": "2026-09-18" },
+        "measured_rows": 15279,
+        "measured_hours_in_span": 17204,
+        "refresh": "daily, to the day before the fetch"
+      },
+      "status": "verified-live",
+      "verified_on": "2026-09-18",
+      "verification": "GET /ods192/exports/json?select=datetime,production,consumption -> HTTP 200, 15,279 rows and 1.3 MB in one request. The field annotations give the unit gCO2eq/kWh for both value columns.",
+      "risks": [
+        "MEASURED 2026-09-18: 326 rows carry 0.0 in one column or both, and 42 of them carry 0.0 in the consumption column only. A zero is an hour that the publisher did not compute, and the collector drops it. The production entry holds the full measurement.",
+        "MEASURED 2026-09-18: the series holds 15,279 of the 17,204 hours of its span. The largest hole runs 70 days, from 2025-12-10T18:00Z to 2026-02-18T23:00Z.",
+        "MEASURED 2026-09-18: the history starts on 2024-09-30. That is 2 years against 11 years of energy-charts. Compare the two on the period that both hold.",
+        "The publisher states no scope. The unit is gCO2eq/kWh, so the number counts more than CO2. It does not say lifecycle, and it does not say direct combustion.",
+        "This series counts the emissions of an import, and the production entry does not. The two are not two opinions about one number. They are two questions.",
+        "The licence page renders from JavaScript, so the terms are not extracted. The catalogue metadata gives the licence name and the URL. Read the page in a browser before any external publication."
+      ],
+      "sibling_source_id": "elia-co2-production",
+      "note": "ods192 holds two value columns for one hour. `basis` is not in the key of the record table, so each column needs its own source id. The two entries name one dataset, and each one makes its own request. `atlas/collectors/elia_opendata.py` holds the reason.",
+      "used_for": ["BE ground truth", "the basis gap, measured with the scope and the factor table held constant"]
+    },
+    {
+      "id": "eurostat-nrg-cb-pem",
+      "name": "Eurostat nrg_cb_pem",
+      "operator": "Eurostat",
+      "category": "generation-mix",
+      "api_base": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_cb_pem",
+      "auth": "none",
+      "cost": "free",
+      "coverage": { "zones": "EU member states", "resolution": "monthly", "format": "JSON-stat 2.0" },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET ?format=JSON&geo=DE&lastTimePeriod=2 -> HTTP 200, updated 2026-09-15T23:00:00+0200.",
+      "risks": ["The sinceTimePeriod parameter rejected the value 2025M01. Use lastTimePeriod or an explicit time filter."],
+      "used_for": ["official monthly national account", "annual reconciliation of the sub-hourly sources"]
+    },
+    {
+      "id": "owid-carbon-intensity",
+      "name": "Our World in Data, carbon intensity of electricity",
+      "operator": "Our World in Data",
+      "category": "reference-annual",
+      "api_base": "https://ourworldindata.org/grapher/carbon-intensity-electricity.csv",
+      "auth": "none",
+      "cost": "free",
+      "licence": "CC BY",
+      "coverage": { "zones": "global, per country", "resolution": "annual" },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET ...csv?csvType=filtered&useColumnShortNames=true -> HTTP 200 CSV with columns entity, code, year, co2_intensity__gco2_kwh, co2_intensity__gco2_kwh__original_year.",
+      "note": "The original_year column exposes how stale each figure is. Keep it.",
+      "used_for": ["independent annual sanity check"]
+    },
+    {
+      "id": "emissions-dev",
+      "name": "emissions.dev",
+      "operator": "emissions.dev",
+      "category": "aggregator",
+      "api_base": "https://api.emissions.dev/v1",
+      "docs_url": "https://emissions.dev/docs",
+      "auth": "free tier with rate limit header X-RateLimit-Remaining",
+      "cost": "free tier, enterprise above",
+      "coverage": { "countries": "100+", "us_states": 50, "cloud_regions": ["AWS", "GCP", "Azure"], "resolution": "annual" },
+      "methodology": { "own_sources": ["Ember Global Electricity Review 2025", "European Environment Agency", "Electricity Maps"], "source_trail_in_response": true },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "verification": "GET https://api.emissions.dev/ -> HTTP 200, api_version v1, release 1.0.6, status operational. The endpoint list is in the root response.",
+      "risks": ["NOT an independent source. Its inputs are already in this register. Do not count it as a second opinion."],
+      "used_for": ["cross-check of the cloud-region mapping only"]
+    },
+    {
+      "id": "gcp-region-carbon",
+      "name": "Google Cloud region-carbon-info",
+      "operator": "Google Cloud",
+      "category": "cloud-region",
+      "site_url": "https://googlecloudplatform.github.io/region-carbon-info/",
+      "repo": "https://github.com/GoogleCloudPlatform/region-carbon-info",
+      "auth": "none",
+      "cost": "free",
+      "coverage": { "regions": "all Google Cloud regions", "fields": ["grid carbon intensity", "hourly CFE percent"], "format": "machine readable CSV in the repository" },
+      "status": "verified-live",
+      "verified_on": "2026-09-16",
+      "risks": ["Google, AWS and Azure use different methodologies, boundaries and vintages. A cross-provider table is not like for like and the portal must say so on the panel."],
+      "used_for": ["cloud-region comparison view"]
+    }
+  ],
+  "blocked_probes": [
+    { "source": "Electricity Maps web pages", "result": "HTTP 403 bot protection", "action": "manual CSV download" },
+    { "source": "ENTSO-E API guide page", "result": "HTTP 400", "action": "use the Postman collection" },
+    { "source": "Energinet DeclarationEmissionHour", "result": "HTTP 404 dataset not found", "action": "find the current dataset name in the catalogue" }
+  ]
+}

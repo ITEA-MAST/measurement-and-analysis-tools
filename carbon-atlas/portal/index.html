@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carbon Atlas</title>
+<link rel="icon" href="assets/wirtek-symbol-red.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="fileerr" id="fileErr">
+  <strong>The portal needs an address.</strong> A browser refuses to read a data file beside a page
+  that it opened from the disk. Start the local server, then open the address it prints:
+  <code>python -m atlas serve</code>
+</div>
+
+<header class="brand">
+  <img class="logo" src="assets/wirtek-logo-white.png" alt="Wirtek">
+  <div class="divider"></div>
+  <div class="titles">
+    <h1>Carbon Atlas</h1>
+    <p>Grid carbon intensity for European countries. Each value shows its source, its accounting
+       basis and how it was derived.</p>
+  </div>
+  <div class="headright">
+    <div class="clock" id="hdrClock">—</div>
+    <div class="sub" id="hdrSub">—</div>
+    <div class="sub" id="hdrStore">—</div>
+    <div class="sub" id="hdrFresh">—</div>
+  </div>
+</header>
+
+<!-- ================= GLOBAL CONTROLS =================================== -->
+<div class="controls">
+  <div class="ctlrow">
+    <div class="ctl">
+      <label for="cDate">Date
+        <i class="i" id="iDate" data-tip="The day that every tab uses.">i</i></label>
+      <div class="ctl inline">
+        <button class="btn tiny" id="btnPrevDay" data-tip="Go back one day.">&lsaquo;</button>
+        <input type="date" id="cDate">
+        <button class="btn tiny" id="btnNextDay" data-tip="Go forward one day.">&rsaquo;</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="cHour">Hour, UTC
+        <i class="i" data-tip="The hour of the selected day, in UTC. The panels that show one value for each country use this hour.">i</i></label>
+      <div class="ctl inline">
+        <input type="range" id="cHour" min="0" max="23" value="12" step="1">
+        <span class="val" id="cHourV">12:00</span>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="cPeriod">Analysis window
+        <i class="i" data-tip="How many days of history to include. The window always ends on the selected date. The day-by-day chart, the calculator and the compare cards use it.">i</i></label>
+      <select id="cPeriod">
+        <option value="1">This day only</option>
+        <option value="7">7 days to the date</option>
+        <option value="30" selected>30 days to the date</option>
+        <option value="90">90 days to the date</option>
+        <option value="365">365 days to the date</option>
+      </select>
+    </div>
+    <div class="ctl">
+      <label for="cSource">Source
+        <i class="i" id="iSource" data-tip="The source of the numbers on this page.">i</i></label>
+      <select id="cSource"></select>
+    </div>
+    <div class="ctl">
+      <label for="cAgg">Value shown
+        <i class="i" data-tip="This hour gives the value at the selected hour. Window mean gives the mean of all the days in the window. It changes the ranking, the tile map and the compare cards.">i</i></label>
+      <select id="cAgg">
+        <option value="hour">This hour</option>
+        <option value="window">Window mean</option>
+      </select>
+    </div>
+  </div>
+
+  <details class="adv" id="advBox">
+    <summary>Accounting basis and units<span class="n" id="advSummary"></span></summary>
+    <div class="advbody" id="advBody"></div>
+  </details>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="season">Time of year</button>
+  <button data-tab="calc">Workload calculator</button>
+  <button data-tab="compare">Compare</button>
+  <button data-tab="discrepancy">Source discrepancy</button>
+  <button data-tab="forecast">Forecast</button>
+  <button data-tab="raw">Raw data</button>
+  <button data-tab="sources">Source register</button>
+</nav>
+
+<div class="traystrip">
+  <span class="tl">Comparison tray</span>
+  <div class="chips" id="trayStrip"></div>
+  <span class="th" id="windowLabel"></span>
+</div>
+
+<main>
+
+<!-- ================= OVERVIEW ========================================== -->
+<section class="tabpanel active" id="tab-overview">
+  <div class="tabctl">
+    <span class="tcl">Overview filters</span>
+    <div class="ctl">
+      <label>Find a country
+        <i class="i" data-tip="Keeps only the countries whose name or ISO code contains this text. It filters the table and dims the other tiles.">i</i></label>
+      <input type="text" class="fCountry" placeholder="name or code">
+    </div>
+    <div class="ctl">
+      <label>Countries with no record
+        <i class="i" data-tip="A country that the source does not report at this time. Keep it to see the gap, or hide it to rank only the measured countries.">i</i></label>
+      <select id="fEmpty">
+        <option value="hide">Hide them</option>
+        <option value="show">Show them</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid g-2-1">
+    <div class="card">
+      <h2>Ranking <span class="hint" id="rankHint"></span></h2>
+      <p class="lead">Select a row to put the country in the comparison tray.</p>
+      <div class="tscroll tall"><table class="dt" id="rankTable"></table></div>
+      <details class="src"><summary>Sources behind this panel</summary>
+        <div class="srcbody" data-src="panel"></div></details>
+    </div>
+    <div class="card">
+      <h2>Tile map <span class="hint">the same value, placed by geography</span></h2>
+      <p class="lead">One tile for each country in the zone model. Select a tile to put the country
+         in the tray.</p>
+      <div class="cartogrid" id="carto"></div>
+      <div class="legendramp"><span>0</span><div class="ramp"></div><span class="rampmax">1200</span></div>
+      <div id="cartoNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The selected day, hour by hour <span class="hint" id="tsHint"></span></h2>
+    <p class="lead">The measured value of each tray country, at the step of the publisher, averaged
+       into the hour. The band is the range of the other days in the window.</p>
+    <div id="dayChart"></div>
+    <label class="opt"><input type="checkbox" id="optBand" checked> Show the band of the other days</label>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>Day by day across the window <span class="hint" id="daysHint"></span></h2>
+    <p class="lead">The daily mean of each tray country, across the analysis window.</p>
+    <div id="daysChart"></div>
+    <div class="statgrid" id="daysStats"></div>
+  </div>
+</section>
+
+<!-- ================= TIME OF YEAR ====================================== -->
+<section class="tabpanel" id="tab-season">
+  <div class="tabctl">
+    <span class="tcl">Time of year</span>
+    <div class="ctl">
+      <label for="cSeasonCountry">Country for the grids
+        <i class="i" data-tip="The country of the month-by-hour grid and of the year-by-month grid.">i</i></label>
+      <select id="cSeasonCountry"></select>
+    </div>
+  </div>
+
+  <div class="callout info"><span class="ico">ℹ</span><span id="seasonSpan"></span></div>
+
+  <!-- The country of this tab holds a measured defect in its values. app.js
+       fills this block from the same register as the badge of the ranking
+       table. It stays empty for every other country. -->
+  <div id="seasonFlag"></div>
+
+  <div class="card">
+    <h2>The shape of the year and the shape of the day <span class="hint" id="profHint"></span></h2>
+    <p class="lead">One cell for each month and each hour. The cell is the mean of that hour in that
+       month, across every year in the store. The number beside the month is the count of records
+       that made the row, so a month with thin coverage is visible. The outline marks the cleanest
+       hour of the month. The hour is UTC.</p>
+    <div id="profGrid"></div>
+    <div class="legendramp"><span>clean</span><div class="ramp"></div><span>dirty</span></div>
+    <div class="statgrid" id="profStats"></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>Every month of every year <span class="hint" id="yearsHint"></span></h2>
+    <p class="lead">One cell for each month of each year. It shows the long trend and the seasonal
+       cycle at one time.</p>
+    <div id="yearsGrid"></div>
+    <div id="yearsNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>The month spread across the years <span class="hint" id="monthHint"></span></h2>
+    <p class="lead">For each month of the year: the mean of that month in every year, the lowest year
+       and the highest year. It shows how different January is from July, and how much the years
+       differ.</p>
+    <div id="monthChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>The last 365 days <span class="hint" id="calHint"></span></h2>
+    <p class="lead">One cell for each day, for each tray country.</p>
+    <div id="calStrip"></div>
+    <div class="legendramp"><span>0</span><div class="ramp"></div><span class="rampmax">1200</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Head to head <span class="hint" id="h2hHint"></span></h2>
+    <p class="lead">Each pair of tray countries, across the analysis window. It gives the share of
+       days that the first country was cleaner, and the mean difference.</p>
+    <div id="h2h"></div>
+  </div>
+</section>
+
+<!-- ================= WORKLOAD CALCULATOR =============================== -->
+<section class="tabpanel" id="tab-calc">
+  <div class="card">
+    <h2>What does this work cost in carbon, and what does a move save?</h2>
+    <p class="lead">The calculation multiplies the energy of each hour by the measured intensity of
+       that hour. It compares three placements: stay in the current region, move the whole run to the
+       best region, or follow the cleanest region hour by hour. The figure is a difference between
+       average intensities. It is not a measured reduction.</p>
+    <div class="calcin" id="calcInputs"></div>
+    <div id="calcPueNote" class="lead"></div>
+  </div>
+
+  <div class="grid g3" id="calcScenarios"></div>
+
+  <div class="card">
+    <h2>Each candidate region <span class="hint" id="calcTableHint"></span></h2>
+    <div class="tscroll tall"><table class="dt" id="calcTable"></table></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>The hours of the run <span class="hint" id="calcTraceHint"></span></h2>
+    <p class="lead">The intensity of each hour of the run. The marked hours carry the energy.</p>
+    <div id="calcTrace"></div>
+  </div>
+
+  <div class="card">
+    <h2>The same run on each day of the window <span class="hint" id="calcDaysHint"></span></h2>
+    <p class="lead">The saving is not the same on every day. This chart runs the same calculation on
+       each day of the window. The saving is then a range.</p>
+    <div id="calcDays"></div>
+    <div class="statgrid" id="calcDaysStats"></div>
+  </div>
+</section>
+
+<!-- ================= COMPARE =========================================== -->
+<section class="tabpanel" id="tab-compare">
+  <div class="tabctl">
+    <span class="tcl">Compare</span>
+    <div class="ctl">
+      <label>Add a country
+        <i class="i" data-tip="Adds the country to the comparison tray. The tray holds 6 countries.">i</i></label>
+      <select id="cAddCountry"></select>
+    </div>
+    <div class="ctl">
+      <label>&nbsp;</label>
+      <button class="btn" id="btnClearTray">Empty the tray</button>
+    </div>
+  </div>
+  <div class="grid g3" id="cmpCards"></div>
+  <div class="card">
+    <h2>The countries side by side</h2>
+    <div class="tscroll"><table class="dt" id="cmpTable"></table></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+</section>
+
+<!-- ================= SOURCE DISCREPANCY ================================ -->
+<section class="tabpanel" id="tab-discrepancy">
+  <div class="callout warn"><span class="ico">⚠</span><span id="discState"></span></div>
+
+  <!-- Everything in this block comes from `data/pairs.json`. An export from
+       before the analysis step holds no such file, and `boot()` then leaves
+       `D.pairs` empty and hides the block. -->
+  <div id="discMeasured">
+    <div class="kpis" id="discKpis"></div>
+
+    <div class="card">
+      <h2>What two publishers of one country measured <span class="hint" id="discWhen"></span></h2>
+      <p class="lead">One hourly mean from each source, over every hour that both of them report.
+         Source A is the first source id in alphabetical order, so the sign of the gap stays the
+         same between runs. The gap is the mean of A less the mean of B. A share of a gap needs
+         its denominator, and this table divides by the larger mean of the pair.</p>
+      <div class="tscroll"><table class="dt" id="discPairTable"></table></div>
+      <div id="discUnitNote"></div>
+      <details class="src"><summary>How the analysis computes these numbers</summary>
+        <div class="srcbody" id="discMethodText"></div></details>
+    </div>
+
+    <div class="card">
+      <h2>Which hour did each source call the cleanest? <span class="hint" id="discDaysHint"></span></h2>
+      <p class="lead">A day counts only when both sources cover it with 24 hours. The test compares
+         the hour of the lowest value of each source. Within one hour counts the days of the same
+         hour too.</p>
+      <div class="tscroll"><table class="dt" id="discDaysTable"></table></div>
+      <p class="lead" id="discDaysRead"></p>
+    </div>
+
+    <div class="card">
+      <h2>The one pair that separates the basis from the method
+        <span class="hint" id="discBasisHint"></span></h2>
+      <div id="discBasis"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What each country needs for a discrepancy number</h2>
+    <p class="lead">A discrepancy is the difference between two independent sources for one country
+       and one hour. It needs two sources in the store. This table gives the state of each country:
+       the sources that the store holds, and the sources in the register that can serve it next.</p>
+    <div class="tscroll tall"><table class="dt" id="discTable"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Which source can give the second value <span class="badge auto" data-tip="A rule builds this text from the source register. No model runs.">built from the register</span></h2>
+    <div id="discPlan"></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>What this tab does not give yet <span class="hint">the next step, not a result</span></h2>
+    <p class="lead">The panels above measure one pair over all the hours that it shares. They give
+       no row for each country and hour. The next step keeps that shape. It gives the spread of
+       each hour, the widest pair of that hour, and the size of the spread against the mean. The
+       store keeps each source separately, so no mixing is necessary and no value is lost.</p>
+    <div class="pipe" id="discPipe"></div>
+  </div>
+</section>
+
+<!-- ================= FORECAST ========================================== -->
+<section class="tabpanel" id="tab-forecast">
+  <div class="tabctl">
+    <span class="tcl">Forecast</span>
+    <div class="ctl">
+      <label for="cFcCountry">Country
+        <i class="i" data-tip="The country of the forward curve.">i</i></label>
+      <select id="cFcCountry"></select>
+    </div>
+  </div>
+
+  <div class="callout info"><span class="ico">ℹ</span><span id="fcState"></span></div>
+
+  <div class="kpis" id="fcKpis"></div>
+
+  <div class="card">
+    <h2>The captured forward curve <span class="hint" id="fcHint"></span></h2>
+    <p class="lead">The line is the forecast that the publisher gave at the capture time. Where the
+       measurement now exists, it is drawn against it.</p>
+    <div id="fcChart"></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>The horizon of each country <span class="hint" id="fcTableHint"></span></h2>
+    <p class="lead">The horizon comes from the returned curve. The portal reads it for each
+       country.</p>
+    <div class="tscroll tall"><table class="dt" id="fcTable"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Why a score is not on this page yet</h2>
+    <div id="fcWhy"></div>
+  </div>
+</section>
+
+<!-- ================= RAW DATA ========================================== -->
+<section class="tabpanel" id="tab-raw">
+  <div class="tabctl">
+    <span class="tcl">Raw data</span>
+    <div class="ctl">
+      <label for="cRawCountry">Country
+        <i class="i" data-tip="The country whose stored records are shown. The portal reads one file for each country, so only this country is loaded.">i</i></label>
+      <select id="cRawCountry"></select>
+    </div>
+    <div class="ctl">
+      <label for="cRawView">Table
+        <i class="i" data-tip="Records gives one row for each value that the publisher made. Day by day gives the daily mean. Coverage gives the days that were collected, and the days that failed.">i</i></label>
+      <select id="cRawView">
+        <option value="records">Records, at the step of the publisher</option>
+        <option value="days">Day by day, all the history</option>
+        <option value="coverage">Coverage and failures</option>
+      </select>
+    </div>
+    <div class="ctl">
+      <label>&nbsp;</label>
+      <button class="btn" id="btnCsv">Download this table as CSV</button>
+    </div>
+  </div>
+
+  <div class="rawmeta" id="rawMeta"></div>
+
+  <div class="card">
+    <h2 id="rawTitle">Records</h2>
+    <p class="lead" id="rawLead"></p>
+    <div class="tscroll tall"><table class="raw" id="rawTable"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>How a value reaches this page</h2>
+    <div class="pipe" id="rawPipe"></div>
+    <div id="rawPipeNote"></div>
+    <details class="src"><summary>Sources behind this panel</summary>
+      <div class="srcbody" data-src="panel"></div></details>
+  </div>
+</section>
+
+<!-- ================= SOURCE REGISTER =================================== -->
+<section class="tabpanel" id="tab-sources">
+  <div class="tabctl">
+    <span class="tcl">Source register</span>
+    <div class="ctl">
+      <label for="cSrcFilter">Access state
+        <i class="i" data-tip="In the store = the store holds records from this source. verified-live = the endpoint answered on the probe date. key-required = the endpoint answered, but it refused without credentials.">i</i></label>
+      <select id="cSrcFilter"></select>
+    </div>
+    <div class="ctl">
+      <label for="cSrcCat">Category
+        <i class="i" data-tip="What the source gives. A carbon-intensity source gives the number directly. A generation-mix source needs an emission-factor table.">i</i></label>
+      <select id="cSrcCat"></select>
+    </div>
+  </div>
+  <div class="card">
+    <h2 id="srcCount"></h2>
+    <p class="lead">This register is the single definition of a source. Nothing on this page is
+       written by hand twice.</p>
+    <div id="srcList"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="sitefoot">
+  <img src="assets/wirtek-logo.png" alt="Wirtek">
+  <span id="footText">Carbon Atlas</span>
+</footer>
+
+<div class="tip" id="tip"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

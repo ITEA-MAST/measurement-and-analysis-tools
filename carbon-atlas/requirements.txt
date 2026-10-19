@@ -1,0 +1,14 @@
+# carbon-atlas. Two dependencies. Python 3.11. RUNNING.md section 1.
+#
+# The interpreter is 3.11.0 (`.venv/pyvenv.cfg`). It made every timing, file size and
+# row count that the documents quote.
+#
+# The versions are exact, and not ranges. DuckDB changes its storage format and its
+# aggregate behaviour between minor versions, so a range does not reproduce a store.
+duckdb==1.5.5
+httpx==0.28.1
+
+# The tests need no other package. The supported command is:
+#     .venv\Scripts\python.exe tests\test_s1.py
+# The file carries its own harness and prints the count of the tests that passed.
+# pytest is not a dependency, and the suite is not written for it.

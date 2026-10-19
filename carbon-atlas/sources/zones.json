@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "compiled": "2026-09-16",
+  "decision": "The unit of analysis is the COUNTRY. Decided 2026-09-16. Sub-national zones are not separate entities in this program; they are aggregated up. Multi-country areas are replicated down to their members. Every stored value carries a granularity tag so the UI and any report can disclose which of the two happened.",
+  "granularity_tags": {
+    "native": "The source reports this exact country. No transformation.",
+    "aggregated": "The source reports finer zones. The country value is a weighted roll-up of them. Must record members and weighting.",
+    "group": "The source reports one value for an area covering several countries. That value is replicated to each member country. Must record the group id and every member. THIS IS NOT A MEASUREMENT OF THE COUNTRY.",
+    "proxy": "Neither of the above. A value borrowed from a different area. Last resort. Must carry a written justification."
+  },
+  "aggregation_rule": {
+    "preferred": "load-weighted",
+    "formula": "CI_country = sum(CI_zone * load_zone) / sum(load_zone)",
+    "fallback_1": "generation-weighted, where load is not published per zone",
+    "fallback_2": "FORBIDDEN. An unweighted mean of intensities is mathematically wrong and must never be stored. If neither load nor generation is available per zone, store the zones and leave the country value null.",
+    "rationale": "Carbon intensity is a ratio, not a level. An unweighted mean gives a sparse zone the same influence as the zone carrying most of the national load. Sweden is the clearest case: SE1 is near-empty and very clean, SE3 carries Stockholm.",
+    "must_record": ["member zones", "weight series used", "weight source_id"]
+  },
+  "group_rule": {
+    "behaviour": "Replicate the single group value to every member country.",
+    "tag": "group",
+    "must_record": ["group_id", "all member countries", "the source that defines the group"],
+    "ui_requirement": "The portal must show a visible badge on any panel containing a group-tagged value, and the collapsible source block must name the group and its members. A report must do the same in text.",
+    "comparison_requirement": "Two countries whose values both come from the same group are NOT independent. They must never be presented as a comparison, and any ranking must collapse them into one row."
+  },
+  "known_groups": [
+    {
+      "group_id": "DE-LU",
+      "name": "Germany and Luxembourg bidding zone",
+      "members": ["DE", "LU"],
+      "defined_by": "entsoe",
+      "status": "pending-verification",
+      "note": "DE and LU share one ENTSO-E bidding zone. energy-charts nonetheless reports them separately and far apart: de 488.0 and lu 303.4 gCO2eq/kWh on 2026-09-10. Verify against ENTSO-E when the token arrives. If ENTSO-E confirms one zone, at least one of the two energy-charts series is not a grid measurement."
+    },
+    {
+      "group_id": "SEM",
+      "name": "Single Electricity Market, island of Ireland",
+      "members": ["IE", "GB-NIR"],
+      "defined_by": "entsoe",
+      "status": "pending-verification",
+      "note": "Northern Ireland trades with Ireland, not with Great Britain. NESO covers GB only."
+    },
+    {
+      "group_id": "EU",
+      "name": "European Union aggregate",
+      "members": "all EU member states",
+      "defined_by": "energy-charts-co2eq",
+      "status": "verified-live",
+      "note": "energy-charts serves country=eu. 278.2 gCO2eq/kWh on 2026-09-10. Use as the comparison denominator, never as a country value."
+    }
+  ],
+  "naming": {
+    "identifier": "ISO 3166-1 alpha-2, uppercase",
+    "exceptions": [
+      { "iso": "GB", "note": "GB means GREAT BRITAIN, not the United Kingdom. Every electricity source reports Great Britain. Northern Ireland is excluded and belongs to the SEM group. energy-charts spells this country uk; map uk -> GB on ingest." },
+      { "iso": "XK", "note": "Kosovo. Not an ISO-assigned code but in common use and used by energy-charts." }
+    ]
+  },
+  "countries": [
+    { "iso": "AT", "name": "Austria", "ec": "at", "em": { "mode": "native" }, "national": null },
+    { "iso": "BA", "name": "Bosnia and Herzegovina", "ec": "ba", "em": { "mode": "native" }, "national": null },
+    { "iso": "BE", "name": "Belgium", "ec": "be", "em": { "mode": "native" }, "national": { "source_id": "elia-co2-production", "mode": "native" } },
+    { "iso": "BG", "name": "Bulgaria", "ec": "bg", "em": { "mode": "native" }, "national": null },
+    { "iso": "CH", "name": "Switzerland", "ec": "ch", "em": { "mode": "native" }, "national": null },
+    { "iso": "CY", "name": "Cyprus", "ec": "cy", "em": { "mode": "native" }, "national": null },
+    { "iso": "CZ", "name": "Czechia", "ec": "cz", "em": { "mode": "native" }, "national": null },
+    { "iso": "DE", "name": "Germany", "ec": "de", "em": { "mode": "native" }, "national": null, "groups": ["DE-LU"] },
+    { "iso": "DK", "name": "Denmark", "ec": "dk", "em": { "mode": "aggregate", "zones": ["DK-DK1", "DK-DK2"] }, "national": { "source_id": "energinet-eds", "mode": "aggregate", "zones": ["DK1", "DK2"] } },
+    { "iso": "EE", "name": "Estonia", "ec": "ee", "em": { "mode": "native" }, "national": null },
+    { "iso": "ES", "name": "Spain", "ec": "es", "em": { "mode": "aggregate", "zones": ["ES", "ES-CE", "ES-ML", "ES-CN-FV", "ES-CN-GC", "ES-CN-HI", "ES-CN-IG", "ES-CN-LP", "ES-CN-LZ", "ES-CN-TE", "ES-IB-FO", "ES-IB-IZ", "ES-IB-MA", "ES-IB-ME"], "note": "Mainland plus Canary, Balearic, Ceuta and Melilla. The islands are small in load and dirty. Load weighting matters here." }, "national": null, "flags": ["no national source in the register: REE did not answer the probe and was removed on 2026-09-18. ENTSO-E is the route to a second value for ES."] },
+    { "iso": "FI", "name": "Finland", "ec": "fi", "em": { "mode": "native" }, "national": null, "flags": ["no national source in the register: Fingrid needs a key and was removed on 2026-09-18. ENTSO-E is the route to a second value for FI."] },
+    { "iso": "FR", "name": "France", "ec": "fr", "em": { "mode": "aggregate", "zones": ["FR", "FR-COR"], "note": "Corsica is separate in Electricity Maps." }, "national": { "source_id": "rte-eco2mix-odre", "mode": "native" } },
+    { "iso": "GB", "name": "Great Britain", "ec": "uk", "em": { "mode": "native", "note": "GB-NIR is a separate zone and is NOT aggregated in. It belongs to the SEM group." }, "national": { "source_id": "neso-carbon-intensity", "mode": "native", "sub_regions": 14 } },
+    { "iso": "GE", "name": "Georgia", "ec": "ge", "em": { "mode": "native" }, "national": null },
+    { "iso": "GR", "name": "Greece", "ec": "gr", "em": { "mode": "native" }, "national": null },
+    { "iso": "HR", "name": "Croatia", "ec": "hr", "em": { "mode": "native" }, "national": null },
+    { "iso": "HU", "name": "Hungary", "ec": "hu", "em": { "mode": "native" }, "national": null },
+    { "iso": "IE", "name": "Ireland", "ec": null, "em": { "mode": "native", "tier": "TIER_B" }, "national": null, "groups": ["SEM"], "flags": ["no-sub-hourly-source", "energy-charts returns HTTP 404 for ie"] },
+    { "iso": "IT", "name": "Italy", "ec": "it", "em": { "mode": "aggregate", "zones": ["IT-NO", "IT-CNO", "IT-CSO", "IT-SO", "IT-SIC", "IT-SAR"], "note": "Six market zones. Sicily and Sardinia are materially dirtier than the north." }, "national": null, "flags": ["no national source in the register: Terna did not answer the probe and was removed on 2026-09-18. ENTSO-E is the route to a second value for IT."] },
+    { "iso": "LT", "name": "Lithuania", "ec": "lt", "em": { "mode": "native" }, "national": null },
+    { "iso": "LU", "name": "Luxembourg", "ec": "lu", "em": { "mode": "native" }, "national": null, "groups": ["DE-LU"], "flags": ["group-conflict: energy-charts reports lu separately from de despite the shared bidding zone"] },
+    { "iso": "LV", "name": "Latvia", "ec": "lv", "em": { "mode": "native" }, "national": null },
+    { "iso": "MD", "name": "Moldova", "ec": "md", "em": { "mode": "native" }, "national": null },
+    { "iso": "ME", "name": "Montenegro", "ec": "me", "em": { "mode": "native" }, "national": null },
+    { "iso": "MK", "name": "North Macedonia", "ec": "mk", "em": { "mode": "native" }, "national": null, "flags": ["energy-charts returns HTTP 200 but every actual value is null; forecast only"] },
+    { "iso": "NL", "name": "Netherlands", "ec": "nl", "em": { "mode": "native" }, "national": null, "flags": ["no national source in the register: NED.nl needs a key and was removed on 2026-09-18. ENTSO-E is the route to a second value for NL."] },
+    { "iso": "NO", "name": "Norway", "ec": "no", "em": { "mode": "aggregate", "zones": ["NO-NO1", "NO-NO2", "NO-NO3", "NO-NO4", "NO-NO5"], "note": "Five price zones. NO2 is cabled to DE, NL and GB and behaves nothing like NO4. A country average hides the only interesting variance Norway has." }, "national": null },
+    { "iso": "PL", "name": "Poland", "ec": "pl", "em": { "mode": "native" }, "national": null },
+    { "iso": "PT", "name": "Portugal", "ec": "pt", "em": { "mode": "aggregate", "zones": ["PT", "PT-MA"], "note": "Madeira is separate." }, "national": null },
+    { "iso": "RO", "name": "Romania", "ec": "ro", "em": { "mode": "native" }, "national": null },
+    { "iso": "RS", "name": "Serbia", "ec": "rs", "em": { "mode": "native" }, "national": null },
+    { "iso": "SE", "name": "Sweden", "ec": "se", "em": { "mode": "aggregate", "zones": ["SE-SE1", "SE-SE2", "SE-SE3", "SE-SE4"], "note": "Four price zones. SE3 carries most of the national load, SE1 almost none. The clearest case for load weighting." }, "national": null },
+    { "iso": "SI", "name": "Slovenia", "ec": "si", "em": { "mode": "native" }, "national": null },
+    { "iso": "SK", "name": "Slovakia", "ec": "sk", "em": { "mode": "native" }, "national": null },
+    { "iso": "XK", "name": "Kosovo", "ec": "xk", "em": { "mode": "native" }, "national": null }
+  ],
+  "counts": {
+    "countries": 36,
+    "with_energy_charts_code": 35,
+    "with_energy_charts_carbon": 34,
+    "count_note": "36 countries total. IE has no energy-charts code (HTTP 404). MK has a code but returns null actuals, so 34 carry usable energy-charts carbon data.",
+    "needing_aggregation_for_electricitymaps": 7,
+    "with_a_dedicated_national_source": 4,
+    "with_a_working_second_sub_hourly_source": ["GB", "FR", "DK", "BE"],
+    "note": "The last list is what the discrepancy analysis can run on today. It grows when the ENTSO-E token arrives and when the Fingrid, NED.nl, REE and Terna access is solved."
+  },
+  "excluded": [
+    { "iso": "UA", "reason": "energy-charts returns HTTP 404 for ua" },
+    { "zone": "GB-NIR", "reason": "Part of the UK but trades in the SEM. Not part of Great Britain. Held in the SEM group, not aggregated into GB." }
+  ]
+}

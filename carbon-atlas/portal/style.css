@@ -1,0 +1,520 @@
+/* ==========================================================================
+   Carbon Atlas — portal stylesheet
+   Wirtek brand tokens from the Wirtek brand guidelines.
+   Adaptations for the green-energy market are marked "ADAPTATION".
+   ========================================================================== */
+
+:root {
+  /* --- Wirtek primary ------------------------------------------------- */
+  --wk-text:        #00152E;
+  --wk-blue:        #01316C;
+  --wk-red:         #D33227;
+  --wk-bg:          #F4F8FF;
+  --wk-bg-darker:   #EAF2FD;
+  --wk-bg-gray:     #F4F4F4;
+  --wk-deep:        #041120;
+  --wk-text-gray:   #33475B;
+
+  /* --- Wirtek secondary ----------------------------------------------- */
+  --wk-valencia:    #D74847;
+  --wk-valencia-25: #F3D4D3;
+  --wk-valencia-10: #FAECEC;
+  --wk-java:        #1FA7B3;
+  --wk-java-75:     #57BDC6;
+  --wk-java-25:     #C7E9EC;
+  --wk-java-10:     #E8F6F7;
+  --wk-bismark:     #436B84;
+  --wk-bismark-75:  #7290A5;
+  --wk-bismark-50:  #A1B5C3;
+  --wk-bismark-25:  #D0DAE1;
+  --wk-bismark-10:  #ECF0F3;
+  --wk-green:       #49B39C;
+  --wk-green-75:    #76C6B4;
+  --wk-green-50:    #A4D9CD;
+  --wk-green-25:    #D1ECE6;
+  --wk-green-10:    #ECF7F5;
+
+  /* --- ADAPTATION: carbon-intensity ramp -------------------------------
+     Ocean Green -> corn (the Wirtek "corn" pattern hue) -> Valencia -> a
+     dark derived from CTA red. Only the two middle stops are new, and both
+     are derived from existing brand hues.                                */
+  --ca-i1: #49B39C;   /* very clean   */
+  --ca-i2: #A4D9CD;   /* clean        */
+  --ca-i3: #E9C23B;   /* medium       */
+  --ca-i4: #E2807E;   /* dirty        */
+  --ca-i5: #D33227;   /* very dirty   */
+  --ca-i6: #7A1D16;   /* extreme      */
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(0,21,46,.06), 0 4px 16px rgba(0,21,46,.06);
+}
+
+* { box-sizing: border-box; }
+
+/* sticky footer: the page column is at least the viewport height and main
+   takes the slack, so the footer sits at the bottom on a short tab */
+html { height: 100%; }
+body {
+  margin: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  background: var(--wk-bg);
+  color: var(--wk-text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+main { flex: 1 0 auto; }
+footer.sitefoot { flex-shrink: 0; margin-top: auto; }
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
+a { color: var(--wk-blue); }
+button, select, input { font: inherit; }
+
+/* ===================== header =========================================== */
+header.brand {
+  background: var(--wk-deep) url("assets/bg-dark.webp") center/cover no-repeat;
+  color: #fff;
+  padding: 22px 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  overflow: hidden;
+}
+header.brand::after {            /* decorative "wi" glyph, low emphasis */
+  content: "";
+  position: absolute;
+  right: -60px; top: -40px;
+  width: 320px; height: 220px;
+  background: url("assets/green-shape.png") right center/contain no-repeat;
+  opacity: .16;
+  pointer-events: none;
+}
+header.brand .logo { height: 54px; width: auto; display: block; }
+header.brand .divider { width: 1px; height: 46px; background: rgba(255,255,255,.28); }
+header.brand .titles h1 { font-size: 26px; }
+header.brand .titles p  { margin: 3px 0 0; color: #C7E9EC; font-size: 13px; max-width: 62ch; }
+header.brand .headright { margin-left: auto; text-align: right; z-index: 1; }
+header.brand .headright .clock { font-size: 22px; font-weight: 600; }
+header.brand .headright .sub   { font-size: 12px; color: var(--wk-bismark-50); }
+
+/* ===================== control bar ====================================== */
+/* Global controls only. A control that changes one tab lives on that tab. */
+.controls {
+  background: #fff;
+  border-bottom: 1px solid var(--wk-bg-darker);
+  box-shadow: var(--shadow);
+  padding: 10px 24px 12px;
+}
+.ctlrow { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px; }
+.ctl { display: flex; flex-direction: column; gap: 3px; }
+.ctl label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--wk-text-gray); font-weight: 600; }
+/* the small "i" that carries the tooltip of a control */
+.ctl label .i, .tabctl label .i {
+  display: inline-flex; width: 13px; height: 13px; border-radius: 50%; margin-left: 4px;
+  border: 1px solid var(--wk-bismark-50); color: var(--wk-bismark);
+  font-size: 9px; font-style: normal; font-weight: 700; text-transform: none;
+  align-items: center; justify-content: center; cursor: help; vertical-align: -2px;
+}
+.ctl label .i:hover, .tabctl label .i:hover { border-color: var(--wk-blue); color: var(--wk-blue); }
+
+/* advanced controls, closed by default */
+details.adv { margin-top: 10px; border-top: 1px dashed var(--wk-bismark-25); padding-top: 9px; }
+details.adv > summary { list-style: none; cursor: pointer; font-size: 11px; font-weight: 700;
+  color: var(--wk-blue); text-transform: uppercase; letter-spacing: .06em; }
+details.adv > summary::-webkit-details-marker { display: none; }
+details.adv > summary::before { content: '\25B8'; margin-right: 6px; display: inline-block; transition: transform .12s; }
+details.adv[open] > summary::before { transform: rotate(90deg); }
+details.adv > summary .n { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--wk-text-gray); margin-left: 8px; }
+.advbody { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px; margin-top: 10px; }
+
+/* per-tab control row */
+.tabctl {
+  background: #fff; border: 1px solid var(--wk-bg-darker); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 10px 14px; margin-bottom: 16px;
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;
+}
+.tabctl .tcl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  font-weight: 700; color: var(--wk-bismark); align-self: center; }
+.tabctl label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--wk-text-gray); font-weight: 600; }
+.tabctl select, .tabctl input[type=text], .tabctl input[type=number] {
+  border: 1px solid var(--wk-bismark-25); border-radius: 6px; padding: 5px 8px;
+  background: #fff; color: var(--wk-text); min-width: 140px; font: inherit;
+}
+.ctl select, .ctl input[type=text], .ctl input[type=number] {
+  border: 1px solid var(--wk-bismark-25);
+  border-radius: 6px; padding: 5px 8px; background: #fff; color: var(--wk-text); min-width: 140px;
+}
+.ctl input[type=range] { width: 210px; accent-color: var(--wk-blue); }
+.ctl .val { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--wk-blue); }
+.ctl.inline { flex-direction: row; align-items: center; gap: 8px; }
+
+.btn {
+  border: 1px solid var(--wk-bismark-25); background: #fff; color: var(--wk-blue);
+  border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+.btn:hover { background: var(--wk-bg-darker); }
+.btn.primary { background: var(--wk-red); border-color: var(--wk-red); color: #fff; }
+.btn.primary:hover { background: #b82a20; }
+
+/* ===================== tabs ============================================= */
+nav.tabs {
+  display: flex; gap: 2px; padding: 0 24px; flex-wrap: wrap;
+  background: #fff; border-bottom: 1px solid var(--wk-bg-darker);
+  position: sticky; top: 0; z-index: 39;
+}
+nav.tabs button {
+  background: none; border: none; border-bottom: 3px solid transparent;
+  padding: 11px 16px; cursor: pointer; color: var(--wk-text-gray); font-weight: 600;
+}
+nav.tabs button:hover { color: var(--wk-blue); }
+nav.tabs button.active { color: var(--wk-blue); border-bottom-color: var(--wk-red); }
+
+/* ===================== tray strip ======================================= */
+.traystrip {
+  background: var(--wk-bg-darker); border-bottom: 1px solid var(--wk-bismark-25);
+  padding: 7px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.traystrip .tl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  font-weight: 700; color: var(--wk-text-gray); }
+.traystrip .th { font-size: 11.5px; color: var(--wk-text-gray); margin-left: auto; }
+
+/* ===================== layout =========================================== */
+main { padding: 20px 24px 60px; width: 100%; max-width: 1560px; margin: 0 auto; }
+.tabpanel { display: none; }
+.tabpanel.active { display: block; }
+
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.g-2-1 { grid-template-columns: minmax(0,2fr) minmax(0,1fr); }
+.g-1-2 { grid-template-columns: minmax(0,1fr) minmax(0,2fr); }
+@media (max-width: 1150px) { .g2, .g3, .g-2-1, .g-1-2 { grid-template-columns: 1fr; }
+  .g4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+.card {
+  background: #fff; border: 1px solid var(--wk-bg-darker);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px 18px; margin-bottom: 16px;
+}
+.card > h2 { font-size: 15px; display: flex; align-items: center; gap: 9px; }
+.card > h2 .hint { font-weight: 400; font-size: 12px; color: var(--wk-text-gray); }
+.card .lead { color: var(--wk-text-gray); font-size: 12.5px; margin: 5px 0 12px; }
+
+/* ===================== KPI tiles ======================================== */
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+@media (max-width: 1150px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+.kpi {
+  background: #fff; border: 1px solid var(--wk-bg-darker); border-left: 4px solid var(--wk-bismark-50);
+  border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow);
+}
+.kpi .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--wk-text-gray); font-weight: 600; }
+.kpi .v { font-size: 25px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kpi .u { font-size: 12px; color: var(--wk-text-gray); }
+.kpi.good { border-left-color: var(--wk-green); }
+.kpi.bad  { border-left-color: var(--wk-valencia); }
+.kpi.info { border-left-color: var(--wk-bismark); }
+.kpi.hl   { border-left-color: var(--wk-java); }
+
+/* ===================== badges =========================================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 20px; border: 1px solid;
+  white-space: nowrap; cursor: help;
+}
+.badge.native     { background: var(--wk-green-10);  border-color: var(--wk-green-50);   color: #2b7a68; }
+.badge.aggregated { background: var(--wk-java-10);   border-color: var(--wk-java-75);    color: #15707a; }
+.badge.group      { background: var(--wk-valencia-10);border-color: var(--wk-valencia-25);color: #A93A31; }
+.badge.proxy      { background: var(--wk-bismark-10);border-color: var(--wk-bismark-50); color: var(--wk-bismark); }
+.badge.plain      { background: var(--wk-bg-darker); border-color: var(--wk-bismark-25); color: var(--wk-text-gray); }
+/* marks text that a rule builds from the register. No model runs here. */
+.badge.auto       { background: var(--wk-java-10);   border-color: var(--wk-java-25);    color: #15707a; }
+
+/* ===================== callouts ========================================= */
+.callout {
+  border-radius: 8px; padding: 9px 12px; font-size: 12.5px;
+  display: flex; gap: 9px; align-items: flex-start; margin: 10px 0;
+}
+.callout .ico { font-size: 14px; line-height: 1.2; }
+.callout.warn { background: var(--wk-valencia-10); border: 1px solid var(--wk-valencia-25); color: #8A2B22; }
+.callout.info { background: var(--wk-bismark-10);  border: 1px solid var(--wk-bismark-25);  color: var(--wk-bismark); }
+.callout.ok   { background: var(--wk-green-10);    border: 1px solid var(--wk-green-50);    color: #2b7a68; }
+
+/* ===================== collapsible source block ========================= */
+details.src {
+  margin-top: 12px; border-top: 1px dashed var(--wk-bismark-25); padding-top: 9px;
+}
+details.src > summary {
+  cursor: pointer; list-style: none; font-size: 12px; font-weight: 600; color: var(--wk-blue);
+  display: flex; align-items: center; gap: 7px; user-select: none;
+}
+details.src > summary::-webkit-details-marker { display: none; }
+details.src > summary::before {
+  content: "▸"; display: inline-block; transition: transform .12s; color: var(--wk-bismark-75);
+}
+details.src[open] > summary::before { transform: rotate(90deg); }
+details.src > summary:hover { color: var(--wk-red); }
+details.src .srcbody { padding: 10px 0 2px 16px; font-size: 12.3px; color: var(--wk-text-gray); }
+.srclist { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.srclist li {
+  background: var(--wk-bg); border: 1px solid var(--wk-bg-darker);
+  border-radius: 8px; padding: 9px 11px;
+}
+.srclist .st { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.srclist .nm { font-weight: 600; color: var(--wk-text); font-size: 12.8px; }
+.srclist .op { color: var(--wk-text-gray); font-size: 11.5px; }
+.srclist .meta { margin-top: 4px; font-size: 11.5px; }
+.srclist .meta b { color: var(--wk-text-gray); font-weight: 600; }
+.srclist .links { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 12px; font-size: 11.8px; }
+.srclist .links a { text-decoration: none; border-bottom: 1px solid var(--wk-java-25); }
+.srclist .links a:hover { color: var(--wk-red); border-bottom-color: var(--wk-valencia-25); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dot.live  { background: var(--wk-green); }
+.dot.key   { background: var(--wk-java); }
+.dot.block { background: var(--wk-valencia); }
+.dot.doc   { background: var(--wk-bismark-50); }
+
+/* ===================== tables =========================================== */
+/* border-collapse: separate is necessary. With border-collapse: collapse, a
+   sticky th makes the browser repaint the whole table on each scroll frame,
+   and the table then scrolls only after the wheel stops. The header rule is a
+   box-shadow, because a collapsed border does not travel with a sticky cell. */
+table.dt { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.7px; }
+table.dt th {
+  text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--wk-text-gray); box-shadow: inset 0 -2px 0 var(--wk-bg-darker); padding: 7px 8px;
+  position: sticky; top: 0; z-index: 2; background: #fff; white-space: nowrap;
+}
+table.dt td {
+  padding: 6px 8px; border-bottom: 1px solid var(--wk-bg); vertical-align: middle;
+}
+table.dt tr:hover td { background: var(--wk-bg); }
+table.dt td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* A scroll box is only for a table that can be long. A table with one row for
+   each country is 36 rows, so it stays in the page and the page scrolls it.
+
+   `overscroll-behavior: contain` must stay off the default box. A box with
+   `overflow: auto` is a scroll container even when it has nothing to scroll,
+   and `contain` then stops the wheel event at the box. The page does not move
+   while the pointer is above the table. The box keeps `overflow: auto` only to
+   give a wide table its own sideways scroll. */
+.tscroll { border: 1px solid var(--wk-bg-darker); border-radius: 8px; overflow: auto; }
+/* a header that sticks to a box that does not scroll can only go behind the tab
+   bar, so it stays with its table */
+.tscroll:not(.tall) table.dt th, .tscroll:not(.tall) table.raw th { position: static; }
+/* Only a table that can be hundreds of rows gets its own scroll box. It does
+   not use `overscroll-behavior`, so the page continues to scroll when the box
+   is at its end. */
+.tscroll.tall { max-height: 640px; overflow: auto; contain: paint; }
+
+.cname { font-weight: 600; }
+.ciso { color: var(--wk-text-gray); font-size: 11px; }
+.isopill {
+  display: inline-block; min-width: 26px; text-align: center;
+  background: var(--wk-bg-darker); color: var(--wk-blue);
+  border: 1px solid var(--wk-bismark-25); border-radius: 4px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; padding: 1px 4px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* ===================== bars / chart bits ================================ */
+.barwrap { background: var(--wk-bg-darker); border-radius: 3px; height: 10px; width: 100%; overflow: hidden; }
+.barwrap > i { display: block; height: 100%; border-radius: 3px; }
+
+svg { display: block; max-width: 100%; }
+.axis line, .axis path { stroke: var(--wk-bismark-25); }
+.axis text { fill: var(--wk-text-gray); font-size: 10px; }
+.gridline { stroke: var(--wk-bg-darker); }
+
+/* ===================== tile cartogram =================================== */
+.cartogrid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; }
+.tile {
+  aspect-ratio: 1/1; border-radius: 7px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
+  color: #fff; font-weight: 700; font-size: 13px; position: relative;
+  border: 2px solid transparent; transition: transform .08s;
+}
+.tile:hover { transform: scale(1.07); z-index: 2; }
+.tile.sel { border-color: var(--wk-text); }
+.tile .tv { font-size: 10px; font-weight: 500; opacity: .92; font-variant-numeric: tabular-nums; }
+.tile.dark-text { color: var(--wk-text); }
+
+/* The colour key. app.js builds the gradient from its RAMP constant and sets
+   it as `--ca-ramp`, so the bar and the tiles can not drift apart. The stops
+   of RAMP are not evenly spaced. A gradient with even stops puts a colour at
+   the wrong place on the 0-1200 axis, by up to 290 g. The declaration below
+   holds the stops of RAMP, and a browser uses it only if the script did not
+   run.                                                                      */
+.legendramp { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--wk-text-gray); margin-top: 10px; }
+.legendramp .ramp { height: 10px; flex: 1; border-radius: 5px;
+  background: var(--ca-ramp, linear-gradient(90deg, var(--ca-i1) 0%, var(--ca-i2) 8.333%, var(--ca-i3) 20.833%, var(--ca-i4) 37.5%, var(--ca-i5) 58.333%, var(--ca-i6) 100%)); }
+
+/* ===================== heatmap ========================================== */
+.heat { border-collapse: separate; border-spacing: 2px; font-size: 11px; width: 100%; }
+.heat th { font-weight: 600; color: var(--wk-text-gray); font-size: 10.5px; padding: 2px 4px; }
+.heat th.rowh { text-align: left; white-space: nowrap; }
+.heat td { text-align: center; border-radius: 4px; padding: 5px 2px; color: #fff; font-variant-numeric: tabular-nums; cursor: help; }
+.heat td.dark-text { color: var(--wk-text); }
+.heat td.best { outline: 2px solid var(--wk-text); outline-offset: -2px; }
+
+/* ===================== calendar strip =================================== */
+.calrow { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.calrow .cl { width: 132px; font-size: 12px; font-weight: 600; flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px; }
+.calcells { display: grid; flex: 1; gap: 0; height: 22px; border-radius: 3px; overflow: hidden; }
+.calcells i { display: block; height: 100%; cursor: help; }
+.calcells i.sel { outline: 2px solid var(--wk-text); outline-offset: -2px; z-index: 2; position: relative; }
+.calaxis { display: grid; flex: 1; font-size: 10px; color: var(--wk-text-gray); }
+.calaxis span { border-left: 1px solid var(--wk-bismark-25); padding-left: 3px; }
+.calrow .cstat { font-size: 11px; color: var(--wk-text-gray); width: 128px; flex-shrink: 0; text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+/* ===================== small stat grid ================================== */
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 10px; margin-top: 12px; }
+.statgrid .s {
+  border: 1px solid var(--wk-bg-darker); border-radius: 8px; padding: 9px 11px; background: var(--wk-bg);
+  font-size: 12px;
+}
+.statgrid .s b { display: block; font-size: 13px; margin-bottom: 3px; }
+.statgrid .s span { color: var(--wk-text-gray); }
+
+.btn.tiny { padding: 3px 9px; font-weight: 700; line-height: 1.1; }
+.ctl input[type=date] { border: 1px solid var(--wk-bismark-25); border-radius: 6px; padding: 4px 7px; }
+
+/* ===================== chips / pickers ================================== */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--wk-bismark-25); background: #fff; border-radius: 20px;
+  padding: 3px 10px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+}
+.chip:hover { border-color: var(--wk-blue); }
+.chip.on { background: var(--wk-blue); border-color: var(--wk-blue); color: #fff; }
+.chip .x { opacity: .7; font-weight: 700; }
+
+/* ===================== calculator ======================================= */
+.calcin { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+.scenario { border: 1px solid var(--wk-bg-darker); border-radius: 10px; padding: 13px 15px; background: var(--wk-bg); }
+.scenario.best    { background: var(--wk-green-10);  border-color: var(--wk-green-50); }
+.scenario.dynamic { background: var(--wk-java-10);   border-color: var(--wk-java-75); }
+.scenario .t { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--wk-text-gray); }
+.scenario .n { font-size: 27px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.scenario .d { font-size: 12px; color: var(--wk-text-gray); }
+.scenario .save { font-weight: 700; color: #2b7a68; }
+
+/* ===================== compare cards ==================================== */
+.cmpcard { border: 1px solid var(--wk-bg-darker); border-radius: 10px; padding: 14px; background: #fff; }
+.cmpcard h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.cmprow { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--wk-bg); font-size: 12.5px; }
+.cmprow b { font-variant-numeric: tabular-nums; }
+.cmprow span.k { color: var(--wk-text-gray); }
+
+/* ===================== raw data ========================================= */
+table.raw {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font-size: 11.8px; font-variant-numeric: tabular-nums;
+}
+table.raw th {
+  position: sticky; top: 0; z-index: 2; background: var(--wk-bg-darker); color: var(--wk-text-gray);
+  font-size: 10.5px; font-weight: 700; text-align: right; padding: 6px 7px;
+  box-shadow: inset 0 -1px 0 var(--wk-bismark-25); white-space: nowrap;
+}
+table.raw th.l, table.raw td.l { text-align: left; }
+table.raw td { padding: 4px 7px; text-align: right; border-bottom: 1px solid var(--wk-bg); }
+table.raw tr:hover td { background: var(--wk-bg); }
+table.raw tr.sel td { background: var(--wk-bg-darker); font-weight: 700; }
+table.raw td.cell { border-radius: 3px; cursor: help; }
+table.raw td.miss { color: var(--wk-bismark-50); }
+/* a cell that is not a record of its own: held from a coarser publisher step,
+   or the mean of several finer records */
+table.raw td.held { opacity: .58; font-style: italic; }
+table.raw td.tick { color: var(--wk-text-gray); }
+table.raw .sub { display: block; font-size: 9.5px; font-weight: 400; color: var(--wk-bismark); }
+
+.rawmeta { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px,1fr)); gap: 10px; }
+.rawmeta .m { border: 1px solid var(--wk-bg-darker); border-radius: 8px; padding: 10px 12px;
+  background: var(--wk-bg); font-size: 12px; }
+.rawmeta .m .kk { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--wk-text-gray); font-weight: 700; margin-bottom: 4px; }
+.rawmeta .m code { font-size: 11px; color: var(--wk-blue); word-break: break-all; }
+
+/* the collector pipeline strip */
+.pipe { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; margin: 4px 0 2px; }
+.pipe .step { flex: 1; min-width: 165px; border: 1px solid var(--wk-bismark-25); background: var(--wk-bg);
+  padding: 9px 11px; font-size: 11.8px; color: var(--wk-text-gray); }
+.pipe .step:first-child { border-radius: 8px 0 0 8px; }
+.pipe .step:last-child  { border-radius: 0 8px 8px 0; background: var(--wk-green-10); border-color: var(--wk-green-50); }
+.pipe .step b { display: block; color: var(--wk-text); font-size: 12.5px; margin-bottom: 2px; }
+.pipe .step + .step { border-left: none; }
+
+footer.sitefoot {
+  border-top: 1px solid var(--wk-bg-darker); background: #fff;
+  padding: 18px 24px; color: var(--wk-text-gray); font-size: 12px;
+  display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+}
+footer.sitefoot img { height: 30px; }
+
+/* ===================== the hover tooltip ================================
+   The box that shows a `data-tip` attribute. The reason for it is in the
+   note above `wireTip` in app.js.                                        */
+.tip {
+  position: fixed; z-index: 90; display: none; pointer-events: none;
+  max-width: 320px; padding: 7px 10px; border-radius: 7px;
+  background: rgba(0, 21, 46, .96); color: #fff;
+  font-size: 12px; line-height: 1.45;
+  box-shadow: 0 6px 18px rgba(0, 21, 46, .28);
+}
+.tip.on { display: block; }
+.tip b { color: #fff; }
+.tip .tk { display: block; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--wk-bismark-50); margin-bottom: 2px; }
+.tip .tr { display: flex; gap: 14px; justify-content: space-between; }
+.tip .tr i {
+  display: inline-block; width: 10px; height: 3px; border-radius: 2px;
+  vertical-align: middle; margin-right: 5px;
+}
+[data-tip] { cursor: help; }
+td[data-tip], .tile[data-tip], .calcells i[data-tip], .hit { cursor: default; }
+.hit { fill: transparent; }
+.hit:hover { fill: #01316C; fill-opacity: .07; }
+
+/* Shown only when the page is opened from the disk. A browser then refuses
+   to read the data files, so the page states the one command that fixes it. */
+.fileerr {
+  display: none;
+  background: var(--wk-valencia-10);
+  border-bottom: 1px solid var(--wk-valencia-25);
+  color: #8A2B22;
+  padding: 10px 24px;
+  font-size: 13px;
+  text-align: center;
+}
+.fileerr.on { display: block; }
+.fileerr code {
+  background: #fff; border: 1px solid var(--wk-valencia-25); border-radius: 5px;
+  padding: 2px 7px; color: #8A2B22; font-size: 12.5px;
+}
+
+/* a checkbox under a chart */
+label.opt {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 9px;
+  font-size: 12px; color: var(--wk-text-gray); cursor: pointer;
+}
+label.opt input { accent-color: var(--wk-blue); }
+
+/* a panel that has no data to show */
+.empty {
+  border: 1px dashed var(--wk-bismark-25); border-radius: 8px;
+  padding: 18px; text-align: center; color: var(--wk-text-gray); font-size: 12.5px;
+  background: var(--wk-bg);
+}
+
+/* the month-by-hour grid and the year-by-month grid scroll sideways on a
+   narrow screen, because a cell below 18 px carries no number */
+.gridscroll { overflow-x: auto; }
+.gridscroll .heat { min-width: 760px; }

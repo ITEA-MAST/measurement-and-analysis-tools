@@ -1,0 +1,153 @@
+.venv/
+__pycache__/
+*.pyc
+
+# The store is data, not source, and only one part of it can leave Wirtek.
+#
+# `store/raw/` holds each payload as the publisher served it. It is the irreplaceable part:
+# the DuckDB file rebuilds from it, and it does not rebuild from the network, because an API
+# serves today and not 2026-09-17. The payloads of the 5 licensed sources are therefore in
+# this repository. They make the published numbers reproducible.
+#
+# 2 sources must never reach a commit: the Denmark series from Energinet, and the Great
+# Britain series from NESO. `LICENSE-DATA.md`, section "The two series you must not
+# redistribute yet", gives the reason. `sources/sources.json` marks both
+# `licence_status: not recorded`, because nobody read the reuse terms of either publisher.
+# Both series are free to read, and that says nothing about the right to republish them.
+# Until somebody reads those terms and records them, both series stay inside Wirtek.
+#
+# A history keeps a file after a delete, so 1 payload in 1 commit costs a history rewrite.
+# Never use `git add -f` on either path, and read `git status --ignored` before each
+# `git add`.
+#
+# The rules below deny by default. `store/*` and `store/raw/*` ignore the whole store, and 1
+# negation line per licensed source allows that source back. A source added tomorrow is
+# ignored until somebody adds its line. Git does not add a file back if an ignored directory
+# holds it, so the rules allow each level in turn: first `store/raw/`, then the source
+# directory. `store/atlas.duckdb`, `store/log/`, `store/tmp/` and every new file at the top
+# of `store/` stay ignored.
+#
+# To publish a new source: record its terms in `sources/sources.json` and in `NOTICE.md`,
+# then add 1 `!store/raw/<source>/` line to the list below.
+store/*
+!store/raw/
+store/raw/*
+!store/raw/energy-charts-co2eq/
+!store/raw/energy-charts-co2eq-snap/
+!store/raw/rte-eco2mix-odre/
+!store/raw/elia-co2-production/
+!store/raw/elia-co2-consumption/
+
+# The 2 blocked sources, named again after the negations. `store/raw/*` above already ignores
+# them, and these 3 lines make the decision visible at the point of the rule. They also hold
+# if somebody later widens a negation above them. A rule that comes later wins, so keep these
+# 3 lines last in this block and add no negation below them.
+store/raw/energinet-eds/
+store/raw/neso-carbon-intensity/
+store/raw/neso-carbon-intensity-snap/
+
+# `portal/data/` is the export of the same series, the 2 blocked ones included, and it
+# rebuilds from the store in minutes.
+portal/data/
+
+# The design mock of 2026-09-17. The working portal in `portal/` superseded it on
+# 2026-09-18. Every number in it is generated, and a generated number that sits in a
+# repository beside a measured one is a question waiting to be asked. It also carried a
+# second copy of the 5 Wirtek brand images. It stays on disk as a record of the design,
+# and it is not part of the deliverable.
+portal/mock/
+
+# The store does not have to be at `store/`. `atlas/config.py:21` reads the location from
+# the ATLAS_STORE environment variable, so 1 variable can put a 359 MiB DuckDB file at a
+# path inside this repository that the rule above does not match. DuckDB also rewrites
+# large parts of the file on each run, so each commit of it would add a near-full copy.
+*.duckdb
+*.duckdb.wal
+*.duckdb.tmp
+
+# Artefacts of a tool run. None of them is source. All 3 appeared in the root of the
+# delivered copy: a Cygwin crash dump, and the caches of pytest and pytest-benchmark.
+# `.pytest_cache/` also holds a `lastfailed` record, and pytest is not the supported
+# test runner. See requirements.txt.
+#
+# `.pytest_cache/v/cache/nodeids` and `lastfailed` also hold the Windows account name of
+# a developer, inside a temporary path. That is the only place in the tree where a person's
+# name is in a file. Do not relax these 3 lines.
+.pytest_cache/
+.benchmarks/
+*.stackdump
+
+# Nothing below matches a file in the tree today. Each line is insurance against the next
+# accident, and a first commit is the only cheap moment to add it. A history keeps a file
+# after a delete, so a credential that arrives once is permanent.
+
+# Credentials and key material. These patterns are deliberately wide, because the cost of a
+# wrong exclusion is that a file does not appear in `git status`, and the cost of a wrong
+# inclusion is a leaked key. `SOURCES.md` §8 plans an ENTSO-E security token, so a file with
+# `token` in its name is a real arrival and not a hypothetical one. `atlas/config.py:103`
+# reads ATLAS_CA_BUNDLE, so a proxy CA file is one too.
+# To commit a file that one of these patterns catches, add a `!` line below it.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.keystore
+.netrc
+_netrc
+id_rsa*
+id_ed25519*
+*token*
+*secret*
+*credential*
+
+# Machine-local tool state. The agent tools write into the working directory, and their
+# files hold absolute paths and permission lists of 1 machine. `.claude/settings.json` is
+# shared project configuration, so the negation keeps it available if the team wants it.
+.claude/*
+!.claude/settings.json
+.playwright-mcp/
+
+# Editor and IDE state. Personal, not project.
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+
+# Files that an operating system writes beside yours.
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Scratch, backup and merge leftovers. A `.orig` or a `.rej` file is a half-finished merge,
+# and a `.log` file records absolute paths and request URLs.
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*~
+*.log
+
+# Python build and analysis output. This project has no build step today. If one arrives,
+# its output is generated and does not belong in the history.
+build/
+dist/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.ipynb_checkpoints/
+
+# The portal has no bundler and no `package.json`, and that is a strength. If one arrives,
+# its dependency tree still does not belong here.
+node_modules/

@@ -1,0 +1,21 @@
+# Citation metadata for carbon-atlas.
+# No DOI, no version and no release date are recorded yet. Add them at the first release.
+# `license` below is the licence of the CODE. The collected data is under CC BY 4.0 and the
+# terms of each publisher. See LICENSE-DATA.md and NOTICE.md.
+cff-version: 1.2.0
+license: Apache-2.0
+message: If you use carbon-atlas, cite it as below.
+title: carbon-atlas
+type: software
+abstract: >-
+  A multi-source grid-carbon dataset and a static HTML portal for European countries.
+  carbon-atlas collects the carbon intensity of the electricity grid from public
+  publishers, keeps every reading with its source, and compares countries, seasons and
+  hours. It also measures where the publishers of one country disagree.
+authors:
+  - name: Wirtek
+keywords:
+  - carbon intensity
+  - electricity grid
+  - open data
+  - Europe
